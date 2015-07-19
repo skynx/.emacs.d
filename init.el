@@ -10,14 +10,33 @@
                          ("marmalade" . "http://marmalade-repo.org/packages/")
                          ("melpa" . "http://melpa.milkbox.net/packages/")))
 
-;; Add git to the exec-path
-(add-to-list 'exec-path "C:/Program Files (x86)/Git/bin")
+;; OS X Specific config
+(when (memq window-system '(mac ns))
+  (exec-path-from-shell-initialize))
+
+;; LISP implementations available to SLIME
+(setq slime-lisp-implementations
+      '((ccl ("/usr/local/src/ccl/dx86cl64"))
+	(ccl32 ("/usr/local/src/ccl/dx86cl"))))
+
+;; Add usr/local/bin to the exec-path
+(add-to-list 'exec-path "usr/local/bin/")
+
+;; Use TRAMP, set default TRAMP method to ssh
+(require 'tramp)
+(setq tramp-default-method "ssh")
+(when (memq window-system '(mac ns))
+  (setq tramp-ssh-controlmaster-options
+	(concat
+	 "-o ControlPath=/tmp/ssh-ControlPath-%%r@%%h:%%p "
+	 "-o ControlMaster=auto -o ControlPersist=yes")))
+
 
 ;; get Orgmode
 (require 'package)
 (add-to-list 'package-archives
 	     '("org" . "http://orgmode.org/elpa/") t)
-(require 'ox-taskjuggler)
+
 (package-initialize)
 
 ;;;;org-mode configuration
@@ -102,10 +121,10 @@
 (add-hook 'cider-repl-mode-hook 'paredit-mode)
 
 ;; General Auto-Complete
-(require 'auto-complete-config)
-(setq ac-delay 0.0)
-(setq ac-quick-help-delay 0.5)
-(ac-config-default)
+;(require 'auto-complete-config)
+;(setq ac-delay 0.0)
+;(setq ac-quick-help-delay 0.5)
+;(ac-config-default)
 
 ;; Have eldoc in CIDER
 (add-hook 'cider-mode-hook 'cider-turn-on-eldoc-mode)
@@ -123,8 +142,10 @@
 
 ;;;; Behaviour
 
-;; Start up with color theme ample
-(load-theme 'ample t)
+;; Start up with color theme
+;(load-theme 'ample t)
+;(load-theme 'ample-zen t)
+(load-theme 'zenburn t)
 
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
@@ -132,7 +153,10 @@
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(blink-cursor-mode nil)
- '(custom-safe-themes (quote ("7a9f392481b6e2fb027ab9d8053ab36c0f23bf5cc1271206982339370d894c74" "d8a4e35ee1b219ccb8a8c15cdfed687fcc9d467c9c8b9b93bd25229b026e4703" default)))
+ '(custom-safe-themes
+   (quote
+    ("9dae95cdbed1505d45322ef8b5aa90ccb6cb59e0ff26fef0b8f411dfc416c552" "7a9f392481b6e2fb027ab9d8053ab36c0f23bf5cc1271206982339370d894c74" "d8a4e35ee1b219ccb8a8c15cdfed687fcc9d467c9c8b9b93bd25229b026e4703" default)))
+ '(dired-dwim-target t)
  '(org-agenda-files (quote ("~/Org/web_scraping.org")))
  '(tool-bar-mode nil))
 (custom-set-faces
@@ -140,7 +164,7 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(default ((t (:family "DejaVu Sans Mono" :foundry "outline" :slant normal :weight normal :height 98 :width normal)))))
+ '(default ((t (:family "Menlo" :foundry "outline" :slant normal :weight normal :height 125 :width normal)))))
 
 ;; Prevent carriage returns from being printed when a buffer's file encoding is mixed
 (defun remove-dos-eol ()
@@ -173,3 +197,28 @@
 ;; Indent Clojure at syntax-level
 (define-key global-map (kbd "RET") 'newline-and-indent)
 ;;(put 'if 'clojure-indent-function 3)
+
+
+;; Web-mode file-types
+
+(require 'web-mode)
+(add-to-list 'auto-mode-alist '("\\.phtml\\'" . web-mode))
+(add-to-list 'auto-mode-alist '("\\.tpl\\'" . web-mode))
+(add-to-list 'auto-mode-alist '("\\.php\\'" . web-mode))
+(add-to-list 'auto-mode-alist '("\\.[agj]sp\\'" . web-mode))
+(add-to-list 'auto-mode-alist '("\\.as[cp]x\\'" . web-mode))
+(add-to-list 'auto-mode-alist '("\\.erb\\'" . web-mode))
+(add-to-list 'auto-mode-alist '("\\.mustache\\'" . web-mode))
+(add-to-list 'auto-mode-alist '("\\.djhtml\\'" . web-mode))
+(add-to-list 'auto-mode-alist '("\\.html\\'" . web-mode))
+
+;; Javascript paredit bindings
+
+(defun my-paredit-nonlisp ()
+  "Turn on paredit mode for non-lisps."
+  (interactive)
+  (set (make-local-variable 'paredit-space-for-delimiter-predicates)
+       '((lambda (endp delimiter) nil)))
+  (paredit-mode 1))
+
+(add-hook 'js-mode-hook 'my-paredit-nonlisp)
