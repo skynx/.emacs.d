@@ -42,6 +42,13 @@
 ;;;;org-mode configuration
 ;; Enable org-mode
 (require 'org)
+(setq org-directory "~/Documents/Work/Org/")
+; intelligently set the agenda files
+(setq org-agenda-files
+      (split-string
+       (shell-command-to-string
+	(concat "find " org-directory " -type f -name '*.org'"))
+       "\n" t))
 (setq org-log-done t)
 (global-set-key "\C-cl" 'org-store-link)
 (global-set-key "\C-cc" 'org-capture)
@@ -147,18 +154,6 @@
 ;(load-theme 'ample-zen t)
 (load-theme 'zenburn t)
 
-(custom-set-variables
- ;; custom-set-variables was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(blink-cursor-mode nil)
- '(custom-safe-themes
-   (quote
-    ("9dae95cdbed1505d45322ef8b5aa90ccb6cb59e0ff26fef0b8f411dfc416c552" "7a9f392481b6e2fb027ab9d8053ab36c0f23bf5cc1271206982339370d894c74" "d8a4e35ee1b219ccb8a8c15cdfed687fcc9d467c9c8b9b93bd25229b026e4703" default)))
- '(dired-dwim-target t)
- '(org-agenda-files (quote ("~/Org/web_scraping.org")))
- '(tool-bar-mode nil))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
